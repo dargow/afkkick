@@ -1,5 +1,5 @@
 --[[
-Afk Kick mod for Minetest by GunshipPenguin
+Afk tag mod for Minetest by Dargod, fork of GunshipPenguin afkkick mod.
 
 To the extent possible under law, the author(s)
 have dedicated all copyright and related and neighboring rights
@@ -7,8 +7,8 @@ to this software to the public domain worldwide. This software is
 distributed without any warranty.
 ]]
 
-local MAX_INACTIVE_TIME = 300
-local CHECK_INTERVAL = 1
+local MAX_INACTIVE_TIME = 120
+local CHECK_INTERVAL = 2
 local WARN_TIME = 20
 
 local players = {}
@@ -43,15 +43,13 @@ minetest.register_globalstep(function(dtime)
 			if checkTimer > CHECK_INTERVAL then
 				checkTimer = 0
 				
-				--Kick player if he/she has been inactive for longer than MAX_INACTIVE_TIME seconds
+				--Change tag of player if he/she has been inactive for longer than MAX_INACTIVE_TIME seconds
 				if players[playerName]["lastAction"] + MAX_INACTIVE_TIME < currGameTime then 
-					minetest.kick_player(playerName, "Kicked for inactivity")
+					minetest.get_player_by_name(playerName):set_nametag_attributes({text = "[AFK] " ..playerName})
+					--minetest.chat_send_player("You have been marked as AFK")
+				else minetest.get_player_by_name(playerName):set_nametag_attributes({text = "" ..playerName})
 				end
 				
-				--Warn player if he/she has less than WARN_TIME seconds to move or be kicked
-				if players[playerName]["lastAction"] + MAX_INACTIVE_TIME - WARN_TIME < currGameTime then
-					minetest.chat_send_player(playerName, "Warning, you have " .. tostring(players[playerName]["lastAction"] + MAX_INACTIVE_TIME - currGameTime) .. " seconds to move or be kicked")
-				end
 			end
 			
 			--Check if this player is doing an action
