@@ -8,8 +8,7 @@ distributed without any warranty.
 ]]
 
 local MAX_INACTIVE_TIME = 120
-local CHECK_INTERVAL = 2
-local WARN_TIME = 20
+local CHECK_INTERVAL = 1
 
 local players = {}
 local checkTimer = 0
@@ -44,10 +43,17 @@ minetest.register_globalstep(function(dtime)
 				checkTimer = 0
 				
 				--Change tag of player if he/she has been inactive for longer than MAX_INACTIVE_TIME seconds
-				if players[playerName]["lastAction"] + MAX_INACTIVE_TIME < currGameTime then 
+				if minetest.get_modpath("rank") then		
+					if players[playerName]["lastAction"] + MAX_INACTIVE_TIME < currGameTime then
+ 					minetest.get_player_by_name(playerName):set_nametag_attributes({text = "[AFK] " ..rank.getRankName(playerName).. " " ..playerName})
+					else minetest.get_player_by_name(playerName):set_nametag_attributes({text = "" ..rank.getRankName(playerName).. " " ..playerName})	
+					end
+				else
+					if players[playerName]["lastAction"] + MAX_INACTIVE_TIME < currGameTime then 
 					minetest.get_player_by_name(playerName):set_nametag_attributes({text = "[AFK] " ..playerName})
-					--minetest.chat_send_player("You have been marked as AFK")
-				else minetest.get_player_by_name(playerName):set_nametag_attributes({text = "" ..playerName})
+					--minetest.chat_send_player(playerName, "You have been marked as AFK")
+					else minetest.get_player_by_name(playerName):set_nametag_attributes({text = "" ..playerName})
+					end
 				end
 				
 			end
